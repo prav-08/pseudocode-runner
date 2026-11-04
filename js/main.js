@@ -123,7 +123,7 @@ class Variable {
 
     get() { // returns as the actual type
         if (this.data == null) {
-            error(this.name + " was accessed before it was initialised");
+            error(this.name + " was accessed before it was initialised. It has not been set a value.");
             return this.type.defaultData();
         }
         else return this.type.convertData(this.data);
@@ -143,7 +143,7 @@ class Scope {
 
     setVar(varName, data) {
         if (this.vars[varName] === undefined) {
-            error("Variable '" + varName + "' is not declared. Use DECLARE first or check for typos in the name.");
+            error("Variable '" + varName + "' is not defined. Use DECLARE first or check for typos in the name.");
             return;
         }
         this.vars[varName].set(data);
@@ -152,7 +152,7 @@ class Scope {
     getVar(varName) {
         // Check if the variable name has a key in this.vars
         if (this.vars[varName] === undefined) {
-            error("Variable '" + varName + "' is not defined");
+            error("Variable '" + varName + "' is not defined. Check for typos in the name.");
             return null;
         }
         return this.vars[varName].get();
@@ -231,7 +231,7 @@ function expr_to_js(expr) {
                 }
                 else {
                     dtype.type = type;
-                    if (dtype.checkValid(com, errors=false)) {
+                    if (dtype.checkValid(com, "", false)) {
                         isData = true;
                         textline += dtype.convertData(com).toString() + " ";
                         break;
