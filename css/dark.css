@@ -1,10 +1,57 @@
 :root {
     --background-color: #202022;
+    --code-bg-color: #101011;
+    --button-color: #422042;
     --text-color:#e0e0e0;
+    --output-div-color: #202042;
+    --error-div-color: #422020;
+    --notes-div-color:#424242;
 }
 
 * {
-    background-color: var(--background-color);
     color:var(--text-color);
-    font-family: 'Consolas';
+}
+
+body, html {
+    background-color: var(--background-color);
+    font-family: "Roboto", sans-serif;
+    margin:0;
+    padding:5px;
+}
+
+#code_input {
+    background-color: var(--code-bg-color);
+    font-family: "Consolas", monospace;
+}
+
+button {
+    background-color: var(--button-color);
+    border:none;
+    border-radius: 5px;
+    padding:10px;
+}
+
+#output, #errors, #notes {
+    font-family: "Consolas", monospace;
+    --div-padding: 5px;
+    width:calc(100%-(var(--div-padding)*2));
+    margin:var(--div-padding);
+    border-radius:10px;
+    min-height:75px;
+}
+
+#notes {
+    padding:5px 25px;
+}
+
+#output {
+    background-color: var(--output-div-color);
+}
+
+#errors {
+    background-color: var(--error-div-color);
+}
+
+#notes {
+    background-color: var(--notes-div-color);
 }
