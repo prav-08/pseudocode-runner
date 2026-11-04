@@ -1,0 +1,10 @@
+:root {
+    --background-color: #202022;
+    --text-color:#e0e0e0;
+}
+
+* {
+    background-color: var(--background-color);
+    color:var(--text-color);
+    font-family: 'Consolas';
+}
