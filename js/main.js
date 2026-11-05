@@ -55,7 +55,7 @@ class DataType {
         this.type = type;
     }
 
-    checkValid(data, varName = "", errors = true) {
+    checkValidData(data, varName = "", errors = true) { // check if the string is valid data
         if (this.type == "INTEGER") {
             // Check if string data can be converted to an integer
             const num = Number(data);
@@ -74,8 +74,14 @@ class DataType {
         return false;
     }
 
-    //convert data to the required type
-    convertData(data) {
+    convertStringToData(data) {
+        if (this.type == "STRING") {
+            return `"${data}"`;
+        } else return data;
+    }
+
+    //convert data from the data storage to JS
+    convertDataToJs(data) {
         if (this.type == "INTEGER") {
             // Convert string to number, then round down to integer
             return Math.floor(Number(data));
@@ -87,6 +93,23 @@ class DataType {
             return (data == "TRUE");
         }
         return data;
+    }
+
+    //convert data to the data storage from JS
+    convertJsToData(data) {
+        if (this.type == "INTEGER") {
+            return `${data}`;
+        }
+        else if (this.type == "STRING") {
+            return `"${data}"`;
+        }
+        else if (this.type == "BOOLEAN") {
+            if (data) {
+                return "TRUE";
+            } else {
+                return "FALSE";
+            }
+        }
     }
 
     defaultData() {
@@ -113,12 +136,16 @@ class Variable {
         }
     }
 
-    set(data) {
-        if (this.type.checkValid(data, this.name)){
-            this.data = this.type.convertData(data);
+    set(data, isString = false) {
+        if (isString) { // if the data isn't already Data
+            data = this.type.convertStringToData(data);
+        }
+        if (this.type.checkValidData(data, this.name)){
+            this.data = data;
         } else {
             error("Data " + data + " cannot be converted to type " + this.type.type);
         }
+        
     }
 
     get() { // returns as the actual type
@@ -126,7 +153,7 @@ class Variable {
             error(this.name + " was accessed before it was initialised. It has not been set a value.");
             return this.type.defaultData();
         }
-        else return this.type.convertData(this.data);
+        else return this.type.convertDataToJs(this.data);
     }
 }
 
@@ -141,12 +168,12 @@ class Scope {
         this.vars[varName] = new Variable(varName, type);
     }
 
-    setVar(varName, data) {
+    setVar(varName, data, isString = false) { // no convert if data is already js
         if (this.vars[varName] === undefined) {
             error("Variable '" + varName + "' is not defined. Use DECLARE first or check for typos in the name.");
             return;
         }
-        this.vars[varName].set(data);
+        this.vars[varName].set(data, isString);
     }
 
     getVar(varName) {
@@ -231,9 +258,9 @@ function expr_to_js(expr) {
                 }
                 else {
                     dtype.type = type;
-                    if (dtype.checkValid(com, "", false)) {
+                    if (dtype.checkValidData(com, "", false)) {
                         isData = true;
-                        textline += dtype.convertData(com).toString() + " ";
+                        textline += dtype.convertDataToJs(com).toString() + " ";
                         break;
                     }
                 }
@@ -284,10 +311,10 @@ function run() {
                 // Get the last non-empty line of output text as the prompt
                 const outputLines = out.text.split(/\n/).filter(line => line.trim() !== "");
                 const promptText = outputLines.length > 0 ? outputLines[outputLines.length - 1] : "";
-                const input = prompt(promptText);
+                const input = prompt(promptText); // to do
                 out.print(input);
                 // Now set the value and display any errors immediately
-                globalScope.setVar(commands[1], input);
+                globalScope.setVar(commands[1], input, isString = true);
             }
         }
         else if (commands[0] == "OUTPUT") {
@@ -302,15 +329,13 @@ function run() {
 
             for (const exp of expressions) {
                 const jsExpr = expr_to_js(exp.trim());
-                console.log("JS Expression: ", jsExpr)
+                console.log("JS Expression: ", jsExpr);
                 out.print(eval(jsExpr), end="");
             }
             out.print("");
         }
         // do this last
         else if (line.includes("<-")) {
-            console.log("1: ",expr_to_js(" 5*2"));
-            console.log("2: ",expr_to_js("5*2"));
             var pos = line.indexOf("<-");
             const assignVar = line.substring(0, pos).trim();
             const operand = expr_to_js(line.substring(pos+2)).trim();
