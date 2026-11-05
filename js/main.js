@@ -35,6 +35,7 @@ var validTypes = [
     "INTEGER",
     "STRING",
     "BOOLEAN",
+    "REAL",
 ]
 
 var validOps = {
@@ -59,7 +60,7 @@ class DataType {
         if (this.type == "INTEGER") {
             // Check if string data can be converted to an integer
             const num = Number(data);
-            if (num.toString() !== data) {
+            if (floor(num) !== num) {
                 if (errors) warn(data + " is not an integer and will be rounded down when stored in " + varName);
             }
             return num == num; // returns false for NaN, true for valid numbers
@@ -69,6 +70,9 @@ class DataType {
         }
         else if (this.type == "BOOLEAN") {
             return (data === "TRUE" || data === "FALSE");
+        } else if (this.type == "REAL") {
+            const num = Number(data);
+            return num == num;
         }
         // Default fallback for unknown/unsupported types: false
         return false;
@@ -91,6 +95,8 @@ class DataType {
         }
         else if (this.type == "BOOLEAN") {
             return (data == "TRUE");
+        } else if (this.type == "REAL") {
+            return Number(data);
         }
         return data;
     }
@@ -109,6 +115,9 @@ class DataType {
             } else {
                 return "FALSE";
             }
+        }
+        else if (this.type == "REAL") {
+            return `${data}`;
         }
     }
 
